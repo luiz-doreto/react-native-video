@@ -253,32 +253,34 @@ export default class Video extends Component {
       }
     }
   }
-  getViewManagerConfig = viewManagerName => {
-    if (!NativeModules.UIManager.getViewManagerConfig) {
-      return NativeModules.UIManager[viewManagerName];
-    }
-    return NativeModules.UIManager.getViewManagerConfig(viewManagerName);
-  };
-
+  
   render() {
     const resizeMode = this.props.resizeMode;
     const source = resolveAssetSource(this.props.source) || {};
     const shouldCache = !source.__packager_asset;
-
+    
     let uri = source.uri || '';
     if (uri && uri.match(/^\//)) {
       uri = `file://${uri}`;
     }
-
+    
     if (!uri) {
       console.warn('Trying to load empty source.');
     }
-
+    
     const isNetwork = !!(uri && uri.match(/^https?:/));
     const isAsset = !!(uri && uri.match(/^(assets-library|ipod-library|file|content|ms-appx|ms-appdata):/));
-
+    
     let nativeResizeMode;
-    const RCTVideoInstance = this.getViewManagerConfig('RCTVideo');
+    let RCTVideoInstance;
+
+    if (!NativeModules.UIManager.getViewManagerConfig) {
+      RCTVideoInstance = NativeModules.UIManager.RCTVideo;
+    }
+
+    RCTVideoInstance = NativeModules.UIManager.getViewManagerConfig('RCTVideo');
+    
+    
 
     if (resizeMode === VideoResizeMode.stretch) {
       nativeResizeMode = RCTVideoInstance.Constants.ScaleToFill;
